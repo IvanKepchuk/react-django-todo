@@ -1,38 +1,14 @@
 import React, { Component } from "react";
 import  Modal  from "./components/Modal";
+import axios from "axios";
 
-const todoItems = [
-  {
-    id: 1,
-    title: "Go to Market",
-    description: "Buy ingredients to prepare dinner",
-    completed: true,
-  },
-  {
-    id: 2,
-    title: "Study",
-    description: "Read Algebra and History textbook for the upcoming test",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Sammy's books",
-    description: "Go to library to return Sammy's books",
-    completed: true,
-  },
-  {
-    id: 4,
-    title: "Article",
-    description: "Write article on how to use Django with React",
-    completed: false,
-  },
-];
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       viewCompleted: false,
+      todoList: [],
       todoList: todoItems,
       modal: false,
       activeItem: {
@@ -43,18 +19,41 @@ class App extends Component {
     };
   }
 
+  componentDidMount() {
+    this.refreshList();
+  }
+
+/*refreshList() - reusable function, called when the API is requested.
+Updates the list of all tasks to display the most recent list of added items */
+
+refreshList = () => {
+    axios
+    .get("/api/todos/")
+    .then((res) => this.setState({ todoList: res.data }))
+    .catch((err) => console.log(err));
+  };
+
   toggle = () => {
     this.setState({ modal: !this.state.modal });
   };
 
+/*handleSubmith() - the function is executed to create and and update.
+If the element does not have an id, it means it was not created, the function will create it */
+
   handleSubmith = (item) => {
     this.toggle();
 
-    alert("save" + JSON.stringify(item));
+    if (item.id) {
+      axios
+      .put(`/api/todos/${item.id}/`, item)
+      .then((res) => this.refreshList());
+    }
   };
 
   handleDelete = (item) => {
-    alert("delete" + JSON.stringify);
+    axios
+    .delete(`/api/todos${item.id}/`)
+    .then((res) => this.refreshList());
   };
 
   createItem = () => {
