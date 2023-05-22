@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import  Modal  from "./components/Modal";
+import Modal from "./components/Modal";
 import axios from "axios";
-
 
 class App extends Component {
   constructor(props) {
@@ -9,7 +8,6 @@ class App extends Component {
     this.state = {
       viewCompleted: false,
       todoList: [],
-      todoList: todoItems,
       modal: false,
       activeItem: {
         title: "",
@@ -23,14 +21,15 @@ class App extends Component {
     this.refreshList();
   }
 
+
 /*refreshList() - reusable function, called when the API is requested.
 Updates the list of all tasks to display the most recent list of added items */
 
-refreshList = () => {
+  refreshList = () => {
     axios
-    .get("/api/todos/")
-    .then((res) => this.setState({ todoList: res.data }))
-    .catch((err) => console.log(err));
+      .get("/api/todos/")
+      .then((res) => this.setState({ todoList: res.data }))
+      .catch((err) => console.log(err));
   };
 
   toggle = () => {
@@ -40,24 +39,28 @@ refreshList = () => {
 /*handleSubmith() - the function is executed to create and and update.
 If the element does not have an id, it means it was not created, the function will create it */
 
-  handleSubmith = (item) => {
+  handleSubmit = (item) => {
     this.toggle();
 
     if (item.id) {
       axios
-      .put(`/api/todos/${item.id}/`, item)
-      .then((res) => this.refreshList());
+        .put(`/api/todos/${item.id}/`, item)
+        .then((res) => this.refreshList());
+      return;
     }
+    axios
+      .post("/api/todos/", item)
+      .then((res) => this.refreshList());
   };
 
   handleDelete = (item) => {
     axios
-    .delete(`/api/todos${item.id}/`)
-    .then((res) => this.refreshList());
+      .delete(`/api/todos/${item.id}/`)
+      .then((res) => this.refreshList());
   };
 
   createItem = () => {
-    const item = {title: "", description: "", completed: false};
+    const item = { title: "", description: "", completed: false };
 
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
@@ -65,7 +68,6 @@ If the element does not have an id, it means it was not created, the function wi
   editItem = (item) => {
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
-
 
   displayCompleted = (status) => {
     if (status) {
@@ -75,21 +77,21 @@ If the element does not have an id, it means it was not created, the function wi
     return this.setState({ viewCompleted: false });
   };
 
-
 /* renderTadList - the function has two ranges,
    that control the display of elements - completed and incomplete*/
+
   renderTabList = () => {
     return (
       <div className="nav nav-tabs">
         <span
-          className={this.state.viewCompleted ? "nav-link active" : "nav-link"}
           onClick={() => this.displayCompleted(true)}
+          className={this.state.viewCompleted ? "nav-link active" : "nav-link"}
         >
           Complete
         </span>
         <span
-          className={this.state.viewCompleted ? "nav-link" : "nav-link active"}
           onClick={() => this.displayCompleted(false)}
+          className={this.state.viewCompleted ? "nav-link" : "nav-link active"}
         >
           Incomplete
         </span>
@@ -100,7 +102,7 @@ If the element does not have an id, it means it was not created, the function wi
   renderItems = () => {
     const { viewCompleted } = this.state;
     const newItems = this.state.todoList.filter(
-      (item) => item.completed == viewCompleted
+      (item) => item.completed === viewCompleted
     );
 
     return newItems.map((item) => (
@@ -160,9 +162,9 @@ If the element does not have an id, it means it was not created, the function wi
           <Modal
             activeItem={this.state.activeItem}
             toggle={this.toggle}
-            onSave={this.handleSubmith} 
+            onSave={this.handleSubmit}
           />
-        ):null}
+        ) : null}
       </main>
     );
   }
